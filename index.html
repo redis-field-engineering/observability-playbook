@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.20">
+<title>Redis Enterprise Developer Observability Playbook</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="./asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Redis Enterprise Developer Observability Playbook</h1>
+<div class="details">
+<span id="revnumber">version 1.0</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#introduction">1. Introduction</a></li>
+<li><a href="#core-cluster-resource-monitoring">2. Core cluster resource monitoring</a>
+<ul class="sectlevel2">
+<li><a href="#memory">2.1. Memory</a></li>
+<li><a href="#cpu">2.2. CPU</a></li>
+<li><a href="#connections">2.3. Connections</a></li>
+</ul>
+</li>
+<li><a href="#database-performance-indicators">3. Database performance indicators</a>
+<ul class="sectlevel2">
+<li><a href="#latency">3.1. Latency</a></li>
+<li><a href="#cache-hit-rate">3.2. Cache hit rate</a></li>
+<li><a href="#key-eviction-rate">3.3. Key eviction rate</a></li>
+</ul>
+</li>
+<li><a href="#data-access-anti-patterns">4. Data access anti-patterns</a>
+<ul class="sectlevel2">
+<li><a href="#slow-operations">4.1. Slow operations</a></li>
+<li><a href="#hot-keys">4.2. Hot keys</a></li>
+<li><a href="#large-keys">4.3. Large keys</a></li>
+</ul>
+</li>
+<li><a href="#alerting">5. Alerting</a>
+<ul class="sectlevel2">
+<li><a href="#configuring-prometheus">5.1. Configuring Prometheus</a></li>
+<li><a href="#list-of-alerts">5.2. List of alerts</a></li>
+</ul>
+</li>
+<li><a href="#appendix-a-grafana-dashboards">6. Appendix A: Grafana Dashboards</a>
+<ul class="sectlevel2">
+<li><a href="#software">6.1. Software</a></li>
+<li><a href="#cloud">6.2. Cloud</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="introduction"><a class="anchor" href="#introduction"></a>1. Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This document provides monitoring guidance for developers running applications
+that connect to Redis Enterprise. In particular, this guide focuses on the systems
+and resources that are most likely to impact the performance of your application.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/node_summary.png" alt="node summary">
+</div>
+<div class="title">Figure 1. Dashboard showing relevant statistics for a Node</div>
+</div>
+<div class="paragraph">
+<p>To effectively monitor a Redis Enterprise cluster you need to observe
+core cluster resources and key database performance indicators.</p>
+</div>
+<div class="paragraph">
+<p>Core cluster resources include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#memory">Memory utilization</a></p>
+</li>
+<li>
+<p><a href="#cpu">CPU utilization</a></p>
+</li>
+<li>
+<p><a href="#connections">Database connections</a></p>
+</li>
+<li>
+<p><a href="#network-ingress-egress">Network traffic</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Key database performance indicators include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#latency">Latency</a></p>
+</li>
+<li>
+<p><a href="#cache-hit-rate">Cache hit rate</a></p>
+</li>
+<li>
+<p><a href="#key-eviction-rate">Key eviction rate</a></p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/cluster_overview.png" alt="cluster overview">
+</div>
+<div class="title">Figure 2. Dashboard showing an overview of cluster metrics</div>
+</div>
+<div class="paragraph">
+<p>In addition to manually monitoring these resources and indicators, we recommend <a href="#alerting">setting up alerts</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="core-cluster-resource-monitoring"><a class="anchor" href="#core-cluster-resource-monitoring"></a>2. Core cluster resource monitoring</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="memory"><a class="anchor" href="#memory"></a>2.1. Memory</h3>
+<div class="paragraph">
+<p>Every Redis Enterprise database has a maximum configured memory limit to ensure isolation
+in a multi-database cluster.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Metric name</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Definition</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Unit</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Memory usage percentage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Percentage of used memory relative to the configured memory limit for a given database</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Percentage</p></td>
+</tr>
+</tbody>
+</table>
+<div class="imageblock">
+<div class="content">
+<img src="images/playbook_used-memory.png" alt="playbook used memory">
+</div>
+</div>
+<div class="sect3">
+<h4 id="thresholds"><a class="anchor" href="#thresholds"></a>2.1.1. Thresholds</h4>
+<div class="paragraph">
+<p>The appropriate memory threshold depends on how the application is using Redis.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#caching-workloads">Caching workloads</a>, which permit Redis to evict keys, can safely use 100% of available memory.</p>
+</li>
+<li>
+<p><a href="#non-caching-workloads">Non-caching workloads</a> do not permit key eviction and should be closely monitored as soon as memory usage reaches 80%.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="caching-workloads"><a class="anchor" href="#caching-workloads"></a>2.1.2. Caching workloads</h4>
+<div class="paragraph">
+<p>For applications using Redis solely as a cache, you can safely let the memory usage
+reach 100% as long as you have an <a href="https://redis.io/blog/cache-eviction-strategies/">eviction policy</a> in place. This will ensure
+that Redis can evict keys while continuing to accept new writes.</p>
+</div>
+<div class="paragraph">
+<p>While your Redis database is using 100% of available memory in a caching context,
+it&#8217;s still important to monitor performance. The key performance indicators include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Latency</p>
+</li>
+<li>
+<p>Cache hit ratio</p>
+</li>
+<li>
+<p>Evicted keys</p>
+</li>
+</ul>
+</div>
+<div class="sect4">
+<h5 id="read-latency"><a class="anchor" href="#read-latency"></a>Read latency</h5>
+<div class="paragraph">
+<p><strong>Latency</strong> has two important definitions, depending on context:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>In context Redis itself, latency is <strong>the time it takes for Redis
+to respond to a request</strong>. See <a href="#latency">Latency</a> for a broader discussion of this metric.</p>
+</li>
+<li>
+<p>In the context of your application, latency is <strong>the time it takes for the application
+to process a request</strong>. This will include the time it takes to execute both reads and writes
+to Redis, as well as calls to other databases and services. Note that its possible for
+Redis to report low latency while the application is experiencing high latency.
+This may indicate a low cache hit ratio, ultimately caused by insufficient memory.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You need to monitor both application-level and Redis-level latency to diagnose
+caching performance issues in production.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cache-hit-ratio-and-eviction"><a class="anchor" href="#cache-hit-ratio-and-eviction"></a>Cache hit ratio and eviction</h5>
+<div class="paragraph">
+<p><strong>Cache hit ratio</strong> is the percentage of read requests that Redis serves successfully.
+<strong>Eviction rate</strong> is the rate at which Redis evicts keys from the cache. These metrics
+are often inversely correlated: a high eviction rate may cause a low cache hit ratio.</p>
+</div>
+<div class="paragraph">
+<p>If the Redis server is empty, the hit ratio will be 0%. As the application runs and the fills the cache,
+the hit ratio will increase.</p>
+</div>
+<div class="paragraph">
+<p><strong>When the entire cached working set fits in memory</strong>, then the cache hit ratio will reach close to 100%
+while the percent of used memory will remain below 100%.</p>
+</div>
+<div class="paragraph">
+<p><strong>When the working set cannot fit in memory</strong>, the eviction policy will start to evict keys.
+The greater the rate of key eviction, the lower the cache hit ratio.</p>
+</div>
+<div class="paragraph">
+<p>In both cases, keys will may be manually invalidated by the application or evicted through
+the uses of TTLs (time-to-live) and an eviction policy.</p>
+</div>
+<div class="paragraph">
+<p>The ideal cache hit ratio depends on the application, but generally, the ratio should be greater than 50%.
+Low hit ratios coupled with high numbers of object evictions may indicate that your cache is too small.
+This can cause thrashing on the application side, a scenario where the cache is constantly being invalidated.</p>
+</div>
+<div class="paragraph">
+<p>The upshot here is that when your Redis database is using 100% of available memory, you need
+to measure the rate of
+<a href="https://redis.io/docs/latest/operate/rs/references/metrics/database-operations/#evicted-objectssec">key evictions</a>.</p>
+</div>
+<div class="paragraph">
+<p>An acceptable rate of key evictions depends on the total number of keys in the database
+and the measure of application-level latency. If application latency is high,
+check to see that key evictions have not increased.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="non-caching-workloads"><a class="anchor" href="#non-caching-workloads"></a>2.1.3. Non-caching workloads</h4>
+<div class="paragraph">
+<p>If no eviction policy is enabled, then Redis will stop accepting writes once memory reaches 100%.
+Therefore, for non-caching workloads, we recommend that you configure an alert at 80% memory usage.
+Once your database reaches this 80% threshold, you should closely review the rate of memory usage growth.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="troubleshooting"><a class="anchor" href="#troubleshooting"></a>2.1.4. Troubleshooting</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Issue</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Possible causes</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Remediation</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Redis memory usage has reached 100%</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This may indicate an insufficient Redis memory limit for your application&#8217;s workload</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">For non-caching workloads (where eviction is unacceptable),
+immediately increase the memory limit for the database.
+You can accomplish this through the Redis Enterprise console or its API.
+Alternatively, you can contact Redis support to assist.</p>
+<p class="tableblock">For caching workloads, you need to monitor performance closely.
+Confirm that you have an <a href="https://redis.io/docs/latest/operate/rs/databases/memory-performance/eviction-policy/">eviction policy</a>
+in place.
+If your application&#8217;s performance starts to degrade, you may need to increase the memory limit,
+as described above.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Redis has stopped accepting writes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Memory is at 100% and no eviction policy is in place</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Increase the database&#8217;s total amount of memory.
+If this is for a caching workload, consider enabling
+an <a href="https://redis.io/docs/latest/operate/rs/databases/memory-performance/eviction-policy/">eviction policy</a></p>
+<p class="tableblock">In addition, you may want to determine whether the application can set a reasonable TTL (time-to-live) on some or all
+of the data being written to Redis.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cache hit ratio is steadily decreasing</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The application&#8217;s working set size may be steadily increasing.</p>
+<p class="tableblock">Alternatively, the application may be misconfigured (e.g., generating
+more than one unique cache key per cached item.)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If the working set size is increasing, consider increasing the memory limit for the database.
+If the application is misconfigured, review the application&#8217;s cache key generation logic.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cpu"><a class="anchor" href="#cpu"></a>2.2. CPU</h3>
+<div class="paragraph">
+<p>Redis Enterprise provides several CPU metrics:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Metric name</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Definition</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Unit</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shard CPU</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CPU time portion spent by database shards</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Percentage, up to 100% per shard</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Proxy CPU</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CPU time portion spent by the cluster&#8217;s proxy(s)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Percentage, 100% per proxy thread</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Node CPU (User and System)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CPU time portion spent by all user-space and kernel-level processes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Percentage, 100% per node CPU</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>To understand CPU metrics, it&#8217;s worth recalling how a Redis Enterprise cluster is organized.
+A cluster consists of one or more nodes. Each node is a VM (or cloud compute instance) or
+a bare-metal server.</p>
+</div>
+<div class="paragraph">
+<p>A database is a set of processes, known as shards, deployed across the nodes of a cluster.</p>
+</div>
+<div class="paragraph">
+<p>In the dashboard, shard CPU is the CPU utilization of the processes that make up the database.
+When diagnosing performance issues, start by looking at shard CPU.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/playbook_database-cpu-shard.png" alt="playbook database cpu shard">
+</div>
+<div class="title">Figure 3. Dashboard displaying CPU usage</div>
+</div>
+<div class="sect3">
+<h4 id="thresholds-2"><a class="anchor" href="#thresholds-2"></a>2.2.1. Thresholds</h4>
+<div class="paragraph">
+<p>In general, we define high CPU as any CPU utilization above 80% of total capacity.</p>
+</div>
+<div class="paragraph">
+<p>Shard CPU should remain below 80%. Shards are single-threaded, so a shard CPU of 100% means that the shard is fully utilized.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/playbook_proxy-cpu-usage.png" alt="playbook proxy cpu usage">
+</div>
+<div class="title">Figure 4. Display showing DMC Proxy CPU usage</div>
+</div>
+<div class="paragraph">
+<p>Proxy CPU should remain below 80% of total capacity.
+The proxy is a multi-threaded process that handles client connections and forwards requests to the appropriate shard.
+Because the total number of proxy threads is configurable, the proxy CPU may exceed 100%.
+A proxy configured with 6 threads can reach 600% CPU utilization, so in this case,
+keeping utilization below 80% means keeping the total proxy CPU usage below 480%.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/node_cpu.png" alt="node cpu">
+</div>
+<div class="title">Figure 5. Dashboard displaying an ensemble of Node CPU usage data</div>
+</div>
+<div class="paragraph">
+<p>Node CPU should also remain below 80% of total capacity. As with the proxy, the node CPU is variable depending
+on the CPU capacity of the node. You will need to calibrate your alerting based on the number of cores in your nodes.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="troubleshooting-2"><a class="anchor" href="#troubleshooting-2"></a>2.2.2. Troubleshooting</h4>
+<div class="paragraph">
+<p>High CPU utilization has multiple possible causes. Common causes include an under-provisioned cluster,
+excess inefficient Redis operations, and hot master shards.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Issue</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Possible causes</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Remediation</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">High CPU utilization across all shards of a database</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This usually indicates that the database is under-provisioned in terms of number of shards.
+A secondary cause may be that the application is running too many inefficient Redis operations.
+You can detect slow Redis operations by enabling the slow log in the Redis Enterprise UI.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">First, rule out inefficient Redis operations as the cause of the high CPU utilization.
+See <a href="#slow-operations">Slow operations</a> for details on this.
+If inefficient Redis operations are not the cause, then increase the number of shards in the database.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">High CPU utilization on a single shard, with the remaining shards having low CPU utilization</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This usually indicates a master shard with at least one hot key.
+Hot keys are keys that are accessed extremely frequently (e.g., more than 1000 times per second).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hot key issues generally cannot be resolved by increasing the number of shards.
+To resole this issue, see <a href="#hot-keys">Hot keys</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">High Proxy CPU</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">There are several possible causes of high proxy CPU.
+First, review the behavior of connections to the database.
+Frequent cycling of connections, especially with TLS is enabled, can cause high proxy CPU utilization.
+This is especially true when you see more than 100 connections per second per thread.
+Such behavior is almost always a sign of a misbehaving application.</p>
+<p class="tableblock">Seconds, review the total number of operations per second against the cluster.
+If you see more than 50k operations per second per thread, you may need to increase the number of proxy threads.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">In the case of high connection cycling, review the application&#8217;s connection behavior.</p>
+<p class="tableblock">In the case of high operations per second, <a href="https://redis.io/docs/latest/operate/rs/references/cli-utilities/rladmin/tune/#tune-proxy">increase the number of proxy threads</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">High Node CPU</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You will typically detect high shard or proxy CPU utilization before you detect high node CPU utilization.
+Use the remediation steps above to address high shard and proxy CPU utilization.
+In spite of this, if you see high node CPU utilization, you may need to increase the number of nodes in the cluster.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Consider increasing the number of nodes in the cluster and the rebalancing the shards across the new nodes.
+This is a complex operation and should be done with the help of Redis support.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">High System CPU</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Most of the issues above will reflect user-space CPU utilization.
+However, if you see high system CPU utilization, this may indicate a problem at the network or storage level.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Review network bytes in and network bytes out to rule out any unexpected spikes in network traffic.
+You may need perform some deeper network diagnostics to identify the cause of the high system CPU utilization.
+For example, with high rates of packet loss, you may need to review network configurations or even the network hardware.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="connections"><a class="anchor" href="#connections"></a>2.3. Connections</h3>
+<div class="paragraph">
+<p>The Redis Enterprise database dashboard indicates to the total number of connections to the database.</p>
+</div>
+<div class="paragraph">
+<p>This connection count metric should be monitored with both a minimum and maximum number of connections in mind.
+Based on the number of application instances connecting to Redis (and whether your application uses connection pooling),
+you should have a rough idea of the minimum and maximum number of connections you expect to see for any given database.
+This number should remain relatively constant over time.</p>
+</div>
+<div class="sect3">
+<h4 id="troubleshooting-3"><a class="anchor" href="#troubleshooting-3"></a>2.3.1. Troubleshooting</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Issue</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Possible causes</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Remediation</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fewer connections to Redis than expected</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The application may not be connecting to the correct Redis database.
+There may be a network partition between the application and the Redis database.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Confirm that the application can successfully connect to Redis.
+This may require consulting the application logs or the application&#8217;s connection configuration.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Connection count continues to grow over time</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Your application may not be releasing connections.
+The most common of such a connection leak is a manually implemented
+connection pool or a connection pool that is not properly configured.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Review the application&#8217;s connection configuration</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Erratic connection counts (e.g, spikes and drops)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Application misbehavior (thundering herds, connection cycling, ) or networking issues</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Review the application logs and network traffic to determine the cause of the erratic connection counts.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="imageblock">
+<div class="content">
+<img src="images/playbook_bdb-used-connections.png" alt="playbook bdb used connections">
+</div>
+<div class="title">Figure 6. Dashboard displaying connections</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="network-ingress-egress"><a class="anchor" href="#network-ingress-egress"></a>2.3.2. Network ingress / egress</h4>
+<div class="paragraph">
+<p>The network ingress / egress panel show the amount of data being sent to and received from the database.
+Large spikes in network traffic can indicate that the cluster in underprovisioned or that
+the application is reading and/or writing unusually large keys. A correlation between high network traffic
+and high CPU utilization may indicate a large key scenario.</p>
+</div>
+<div class="paragraph">
+<p>Extreme network traffic utilization may approach the limits of the underlying network infrastructure.
+In this case, the only remediation is to add additional nodes to the cluster and scale the database&#8217;s shards across them.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/playbook_network-connectivity.png" alt="playbook network connectivity">
+</div>
+<div class="title">Figure 7. Dashboard displaying connection metrics between zones</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="database-performance-indicators"><a class="anchor" href="#database-performance-indicators"></a>3. Database performance indicators</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There several key performance indicators that report your database&#8217;s performance against your application&#8217;s workload:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Latency</p>
+</li>
+<li>
+<p>Cache hit rate</p>
+</li>
+<li>
+<p>Key eviction rate</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="latency"><a class="anchor" href="#latency"></a>3.1. Latency</h3>
+<div class="paragraph">
+<p>Latency is <strong>the time it takes for Redis to respond to a request</strong>. An adequately provisioned Redis database running
+efficient Redis operations will report an average latency below 1 millisecond. In fact, it&#8217;s common to measure
+latency in terms is microseconds. Customers regularly achieve, and sometime require, average latencies of 400-600
+microseconds.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/playbook_bdb-cluster-latency.png" alt="playbook bdb cluster latency">
+</div>
+<div class="title">Figure 8. Dashboard display of latency metrics</div>
+</div>
+<div class="paragraph">
+<p>The metrics distinguish between read and write latency. Understanding whether high latency is due
+to read or writes can help you to isolate the underlying issue.</p>
+</div>
+<div class="paragraph">
+<p>Note that these latency metrics do not include network round trip time or application-level serialization,
+which is why it&#8217;s essential to measure request latency at the application, as well.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/latency_spike.png" alt="latency spike">
+</div>
+<div class="title">Figure 9. Display showing a noticeable spike in latency</div>
+</div>
+<div class="sect3">
+<h4 id="troubleshooting-4"><a class="anchor" href="#troubleshooting-4"></a>3.1.1. Troubleshooting</h4>
+<div class="paragraph">
+<p>Here are some possible causes of high database latency. Note that high database latency is just one possible
+cause of high application latency. Application latency can be caused by a variety of factors, including
+a low <a href="#cache-hit-rate">cache hit rate</a>, a high rate of <a href="#key-eviction-rate">evictions</a>, or a
+<a href="#network-ingress-egress">networking issue</a>.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Issue</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Possible causes</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Remediation</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Slow database operations</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Confirm that there are no excessive slow operations in the <a href="#slow-operations">Redis slow log</a>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If possible, reduce the number of slow operations being sent to the database.
+If this not possible, consider increasing the number of shards in the database.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Increased traffic to the database</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Review the <a href="#network-ingress-egress">network traffic</a> and the database operations per second chart
+to determine if increased traffic is causing the latency.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If the database is underprovisioned due to increased traffic, consider increasing the number of shards in the database.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Insufficient CPU</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check to see if the <a href="#cpu">CPU utilization</a> is increasing.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Confirm that <a href="#slow-operations">slow operations</a> are not causing the high CPU utilization.
+If the high CPU utilization is due to increased load, consider adding shards to the database.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cache-hit-rate"><a class="anchor" href="#cache-hit-rate"></a>3.2. Cache hit rate</h3>
+<div class="paragraph">
+<p><strong>Cache hit rate</strong> is the percentage of all read operations that return a response.<sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnotedef_1" title="View footnote.">1</a>]</sup>
+When an application tries to read a key that exists, this is known as a <strong>cache hit</strong>.
+Alternatively, when an application tries to read a key that does not exist, this is knows as a <strong>cache miss</strong>.</p>
+</div>
+<div class="paragraph">
+<p>For <a href="#caching-workloads">caching workloads</a>, the cache hit rate should generally be above 50%, although
+the exact ideal cache hit rate can vary greatly depending on the application and depending on whether the cache
+is already populated.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/playbook_cache-hit.png" alt="playbook cache hit">
+</div>
+<div class="title">Figure 10. Dashboard showing the cache hit ratio along with read/write misses</div>
+</div>
+<div class="paragraph">
+<p>Note: Redis Enterprise actually reports four different cache hit / miss metrics.
+These are defined as follows:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Metric name</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Definition</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bdb_read_hits</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The number of successful read operations</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bdb_read_misses</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The number of read operations returning null</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bdb_write_hits</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The number of write operations against existing keys</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bdb_write_misses</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The number of write operations that create new keys</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect3">
+<h4 id="troubleshooting-5"><a class="anchor" href="#troubleshooting-5"></a>3.2.1. Troubleshooting</h4>
+<div class="paragraph">
+<p>Cache hit rate is usually only relevant for caching workloads. See <a href="#cache-hit-ratio-and-eviction">Cache hit ratio and eviction</a>
+for tips on troubleshooting cache hit rate.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="key-eviction-rate"><a class="anchor" href="#key-eviction-rate"></a>3.3. Key eviction rate</h3>
+<div class="paragraph">
+<p>They <strong>key eviction rate</strong> is rate at which objects are being evicted from the database.
+If an <a href="https://redis.io/docs/latest/operate/rs/databases/memory-performance/eviction-policy/">eviction policy</a> is in place
+for a database, eviction will begin once the database approaches its max memory capacity.</p>
+</div>
+<div class="paragraph">
+<p>A high or increasing rate of evictions will negatively affect database latency, especially
+if the rate of necessary key evictions exceeds the rate of new key insertions.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="#cache-hit-ratio-and-eviction">Cache hit ratio and eviction</a> for a discussion if key eviction and its relationship with memory usage.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/playbook_eviction-expiration.png" alt="playbook eviction expiration">
+</div>
+<div class="title">Figure 11. Dashboard displaying object evictions</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-access-anti-patterns"><a class="anchor" href="#data-access-anti-patterns"></a>4. Data access anti-patterns</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There are three data access patterns that can limit the performance of your Redis database:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Slow operations</p>
+</li>
+<li>
+<p>Hot keys</p>
+</li>
+<li>
+<p>Large keys</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This section defines each of these patterns and describes how to diagnose and mitigate them.</p>
+</div>
+<div class="sect2">
+<h3 id="slow-operations"><a class="anchor" href="#slow-operations"></a>4.1. Slow operations</h3>
+<div class="paragraph">
+<p><strong>Slow operations</strong> are operations that take longer than a few milliseconds to complete.</p>
+</div>
+<div class="paragraph">
+<p>Not all Redis operations are equally efficient.
+The most efficient Redis operations are O(1) operations; that is, they have a constant time complexity.
+Example of such operations include <a href="https://redis.io/docs/latest/commands/get/">GET</a>,
+<a href="https://redis.io/docs/latest/commands/set/">SET</a>, <a href="https://redis.io/docs/latest/commands/sadd/">SADD</a>,
+and <a href="https://redis.io/docs/latest/commands/hset/">HSET</a>.</p>
+</div>
+<div class="paragraph">
+<p>These constant time operations are unlikely to cause high CPU utilization.<sup class="footnote">[<a id="_footnoteref_2" class="footnote" href="#_footnotedef_2" title="View footnote.">2</a>]</sup></p>
+</div>
+<div class="paragraph">
+<p>Other Redis operations exhibit greater levels of time complexity.
+O(n) (linear time) operations are more likely to cause high CPU utilization.
+Examples include <a href="https://redis.io/docs/latest/commands/keys/">HGETALL</a>, <a href="https://redis.io/docs/latest/commands/smembers/">SMEMBERS</a>,
+and <a href="https://redis.io/docs/latest/commands/lrem/">LREM</a>.
+These operations are not necessarily problematic, but they can be if executed against data structures holding
+a large number of elements (e.g., a list with 1 million elements).</p>
+</div>
+<div class="paragraph">
+<p>That said, the <a href="https://redis.io/docs/latest/commands/keys/">KEYS</a> command should almost never be run against a
+production system, since returning a list of all keys in a large Redis database can cause significant slowdowns
+and block other operations. If you need to scan the keyspace, especially in a production cluster, always use the
+<a href="https://redis.io/docs/latest/commands/scan">SCAN</a> command instead.</p>
+</div>
+<div class="sect3">
+<h4 id="troubleshooting-6"><a class="anchor" href="#troubleshooting-6"></a>4.1.1. Troubleshooting</h4>
+<div class="paragraph">
+<p>The best way to discover slow operations is to view the slow log.
+The slow low is available in the Redis Enterprise and Redis Cloud consoles:
+* <a href="https://redis.io/docs/latest/operate/rs/clusters/logging/redis-slow-log/">Redis Enterprise slow log docs</a>
+* <a href="https://redis.io/docs/latest/operate/rc/databases/view-edit-database/#other-actions-and-info">Redis cloud slow log docs</a></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/slow_log.png" alt="slow log">
+</div>
+<div class="title">Figure 12. Redis Cloud dashboard showing slow database operations</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Issue</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Remediation</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The KEYS command shows up in the slow log</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Find the application that issuing the KEYS command and replace it with a SCAN command.
+In an emergency situation, you can <a href="https://redis.io/docs/latest/operate/rs/security/access-control/rbac/configure-acl/">alter the ACLs for the database user</a>
+so that Redis will reject the KEYS command altogether.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The slow log shows a significant number of slow, O(n) operations</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If these operations are being issued against large data structures,
+then the application may need to be refactored to use more efficient Redis commands.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The slow logs contains only O(1) commands, and these commands are taking several milliseconds
+or more to complete</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This likely indicate that the database is underprovisioned. Consider increasing the number o shards and/or nodes.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="hot-keys"><a class="anchor" href="#hot-keys"></a>4.2. Hot keys</h3>
+<div class="paragraph">
+<p>A <strong>hot key</strong> is a key that is accessed extremely frequently (e.g., thousands of time a second or more).</p>
+</div>
+<div class="paragraph">
+<p>Each key in Redis belongs to one, and only one, shard.
+For this reason, a hot key can cause high CPU utilization on that one shard,
+which can increase latency for all other operations.</p>
+</div>
+<div class="sect3">
+<h4 id="troubleshooting-7"><a class="anchor" href="#troubleshooting-7"></a>4.2.1. Troubleshooting</h4>
+<div class="paragraph">
+<p>You may suspect that you have a hot key if you see high CPU utilization on a single shard.
+There are two main way to identify hot keys: using the Redis CLI and sampling the operations against Redis.</p>
+</div>
+<div class="paragraph">
+<p>To use the Redis CLI to identify hot keys:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>First confirm that you have enough available memory to enable an eviction policy.</p>
+</li>
+<li>
+<p>Next, enable the LFU (least-frequently used) eviction policy on the database.</p>
+</li>
+<li>
+<p>Finally, run <code>redis-cli --hotkeys</code></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>You may also identify hot keys by sampling the operations against Redis.
+You can use do this by running the <a href="https://redis.io/docs/latest/commands/monitor/">MONITOR</a> command
+against the high CPU shard. Since this a potentially high-impact operation, you should only
+use this technique as a secondary restort. For mission-critical databases, consider
+contact Redis support for assistance.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="remediation"><a class="anchor" href="#remediation"></a>4.2.2. Remediation</h4>
+<div class="paragraph">
+<p>Once you discover a hot key, you need to find a way to reduce the number of operations against it.
+This means getting an understanding of the application&#8217;s access pattern and the reasons for such frequently access.</p>
+</div>
+<div class="paragraph">
+<p>If the hot key operations are read-only, then consider implementing an application-local cache so
+that fewer read request are sent to Redis. For example, even a local cache that expires every 5 seconds
+can entirely eliminate a hot key issue.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="large-keys"><a class="anchor" href="#large-keys"></a>4.3. Large keys</h3>
+<div class="paragraph">
+<p><strong>Large keys</strong> are keys that are hundreds of kilobytes or larger.
+High network traffic and high CPU utilization can be caused by large keys.</p>
+</div>
+<div class="sect3">
+<h4 id="troubleshooting-8"><a class="anchor" href="#troubleshooting-8"></a>4.3.1. Troubleshooting</h4>
+<div class="paragraph">
+<p>To identify large keys, you can sample the keyspace using the Redis CLI.</p>
+</div>
+<div class="paragraph">
+<p>Run <code>redis-cli --memkeys</code> against your database to sample the keyspace in real time
+and potentially identify the largest keys in your database.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="remediation-2"><a class="anchor" href="#remediation-2"></a>4.3.2. Remediation</h4>
+<div class="paragraph">
+<p>Addressing a large key issues requires understanding why the application is creating large keys in the first place.
+As such, it&#8217;s difficult to provide general advice to solving this issue. Resolution often requires a change
+to the application&#8217;s data model or the way it interacts with Redis.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="alerting"><a class="anchor" href="#alerting"></a>5. Alerting</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Redis Enterprise observability package includes
+<a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana#alerts">a suite of alerts and their associated tests for use with Prometheus</a>.<sup class="footnote">[<a id="_footnoteref_3" class="footnote" href="#_footnotedef_3" title="View footnote.">3</a>]</sup></p>
+</div>
+<div class="paragraph">
+<p>The alerts are packaged with <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana/tests">a series of test</a>
+that validate the individual triggers. You can use these test to validate your modification to these alerts for specific environments and use cases.</p>
+</div>
+<div class="paragraph">
+<p>To use these alerts, install <a href="https://prometheus.io/docs/alerting/latest/configuration/">Prometheus Alertmanager</a>.
+For a comprehensive guide to alerting with Prometheus and Grafana,
+see the <a href="https://grafana.com/blog/2020/02/25/step-by-step-guide-to-setting-up-prometheus-alertmanager-with-slack-pagerduty-and-gmail/">Grafana blog post on the subject</a>.</p>
+</div>
+<div class="sect2">
+<h3 id="configuring-prometheus"><a class="anchor" href="#configuring-prometheus"></a>5.1. Configuring Prometheus</h3>
+<div class="paragraph">
+<p>To configure Prometheus for alerting, open the <code>prometheus.yml</code> configuration file.</p>
+</div>
+<div class="paragraph">
+<p>Uncomment the <code>Alertmanager</code> section of the file.
+The following configuration starts Alertmanager and instructs it to listen on its default port of 9093.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The Rule file section of the config file instructs Alertmanager to read specific rules files.
+If you pasted the 'alerts.yml' file into '/etc/prometheus' then the following configuration would be required.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "error_rules.yml"
+  - "alerts.yml"</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Once this is done, restart Prometheus.</p>
+</div>
+<div class="paragraph">
+<p>The built-in configuration, <code>error_rules.yml</code>, has a single alert: Critical Connection Exception.
+If you open the Prometheus console, by default located at port 9090, and select the Alert tab,
+you will see this alert, as well as the alerts in any other file you have included as a rules file.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/playbook_prometheus-alerts.png" alt="playbook prometheus alerts">
+</div>
+</div>
+<div class="paragraph">
+<p>The following is a list of alerts contained in the <code>alerts.yml</code> file. There are several points consider:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Not all Redis Enterprise deployments export all metrics</p>
+</li>
+<li>
+<p>Most metrics only alert if the specified trigger persists for a given duration</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="list-of-alerts"><a class="anchor" href="#list-of-alerts"></a>5.2. List of alerts</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Description</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Trigger</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Average latency has reached a warning level</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">round(bdb_avg_latency * 1000) &gt; 1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Average latency has reached a critical level indicating system degradation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">round(bdb_avg_latency * 1000) &gt; 4</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Absence of any connection indicates improper configuration or firewall issue</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bdb_conns &lt; 1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A flood of connections has occurred that will impact normal operations</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bdb_conns &gt; 64000</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Absence of any requests indicates improperly configured clients</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bdb_total_req &lt; 1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Excessive number of client requests indicates configuration and/or programmatic issues</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bdb_total_req &gt; 1000000</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The database in question will soon be unable to accept new data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">round((bdb_used_memory/bdb_memory_limit) * 100) &gt; 98</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The database in question will be unable to accept new data in two hours</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">round((bdb_used_memory/bdb_memory_limit) * 100) &lt; 98 and (predict_linear(bdb_used_memory[15m], 2 * 3600) / bdb_memory_limit) &gt; 0.3 and round(predict_linear(bdb_used_memory[15m], 2 * 3600)/bdb_memory_limit) &gt; 0.98</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Database read operations are failing to find entries more than 50% of the time</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(100 * bdb_read_hits)/(bdb_read_hits + bdb_read_misses) &lt; 50</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">In situations where TTL values are not set this indicates a problem</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bdb_evicted_objects &gt; 1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Replication between nodes is not in a satisfactory state</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bdb_replicaof_syncer_status &gt; 0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Record synchronization between nodes is not in a satisfactory state</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bdb_crdt_syncer_status &gt; 0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The amount by which replication lags behind events is worrisome</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bdb_replicaof_syncer_local_ingress_lag_time &gt; 500</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The amount by which object replication lags behind events is worrisome</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bdb_crdt_syncer_local_ingress_lag_time &gt; 500</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The expected number of active nodes is less than expected</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">count(node_up) != 3</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Persistent storage will soon be exhausted</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">round((node_persistent_storage_free/node_persistent_storage_avail) * 100) &#8656; 5</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ephemeral storage will soon be exhausted</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">round((node_ephemeral_storage_free/node_ephemeral_storage_avail) * 100) &#8656; 5</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The node in question is close to running out of memory</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">round((node_available_memory/node_free_memory) * 100) &#8656; 15</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The node in question has exceeded expected levels of CPU usage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">round((1 - node_cpu_idle) * 100) &gt;= 80</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The shard in question is not reachable</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">redis_up == 0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The master shard is not reachable</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">floor(redis_master_link_status{role="slave"}) &lt; 1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The shard in question has exceeded expected levels of CPU usage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">redis_process_cpu_usage_percent &gt;= 80</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The master shard has exceeded expected levels of CPU usage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">redis_process_cpu_usage_percent{role="master"} &gt; 0.75 and redis_process_cpu_usage_percent{role="master"} &gt; on (bdb) group_left() (avg by (bdb)(redis_process_cpu_usage_percent{role="master"}) + on(bdb) 1.2 * stddev by (bdb) (redis_process_cpu_usage_percent{role="master"}))</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The shard in question has an unhealthily high level of connections</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">redis_connected_clients &gt; 500</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="appendix-a-grafana-dashboards"><a class="anchor" href="#appendix-a-grafana-dashboards"></a>6. Appendix A: Grafana Dashboards</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Grafana dashboards are available for Redis Enterprise Software and Redis Cloud deployments.</p>
+</div>
+<div class="paragraph">
+<p>These dashboards come in three styles, which may be used in concert with one another to provide
+a holistic picture of your deployment.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Classic dashboards provide detailed information about the cluster, nodes, and individual databases.</p>
+</li>
+<li>
+<p>Basic dashboards provide a high-level overviews of the various cluster components.</p>
+</li>
+<li>
+<p>Extended dashboards which requires a third-party library to perform ReST calls.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>There are two additional sets of dashboards for Redis Enterprise software that provide drill-down functionality: the workflow dashboards.</p>
+</div>
+<div class="sect2">
+<h3 id="software"><a class="anchor" href="#software"></a>6.1. Software</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/software/basic">Basic</a></p>
+</li>
+<li>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/software/extended">Extended</a></p>
+</li>
+<li>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/software/classic">Classic</a></p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="workflow"><a class="anchor" href="#workflow"></a>6.1.1. Workflow</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/workflow/databases">Database</a></p>
+</li>
+<li>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/workflow/nodes">Node</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cloud"><a class="anchor" href="#cloud"></a>6.2. Cloud</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/cloud/basic">Basic</a></p>
+</li>
+<li>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/cloud/extended">Exteneded</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<hr>
+<div class="footnote" id="_footnotedef_1">
+<a href="#_footnoteref_1">1</a>. Cache hit rate is a composite statistic that is computed by dividing the number of read hits by the total number of read operations.
+</div>
+<div class="footnote" id="_footnotedef_2">
+<a href="#_footnoteref_2">2</a>. Even so, it&#8217;s still possible for a high rate of constant time operations to overwhelm an underprovisioned database.
+</div>
+<div class="footnote" id="_footnotedef_3">
+<a href="#_footnoteref_3">3</a>. Not all the alerts are appropriate for all environments; for example, installations that do not use persistence have no need for storage alerts.
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.0<br>
+Last updated 2024-06-04 00:08:33 -0600
+</div>
+</div>
+</body>
+</html>
