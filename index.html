@@ -25,6 +25,7 @@
 <li><a href="#memory">2.1. Memory</a></li>
 <li><a href="#cpu">2.2. CPU</a></li>
 <li><a href="#connections">2.3. Connections</a></li>
+<li><a href="#synchronization">2.4. Synchronization</a></li>
 </ul>
 </li>
 <li><a href="#database-performance-indicators">3. Database performance indicators</a>
@@ -34,23 +35,29 @@
 <li><a href="#key-eviction-rate">3.3. Key eviction rate</a></li>
 </ul>
 </li>
-<li><a href="#data-access-anti-patterns">4. Data access anti-patterns</a>
-<ul class="sectlevel2">
-<li><a href="#slow-operations">4.1. Slow operations</a></li>
-<li><a href="#hot-keys">4.2. Hot keys</a></li>
-<li><a href="#large-keys">4.3. Large keys</a></li>
+<li><a href="#proxy-performance">4. Proxy Performance</a>
+<ul class="sectlevel3">
+<li><a href="#proxy-policies">4.1. Proxy Policies</a></li>
 </ul>
 </li>
-<li><a href="#alerting">5. Alerting</a>
+<li><a href="#data-access-anti-patterns">5. Data access anti-patterns</a>
 <ul class="sectlevel2">
-<li><a href="#configuring-prometheus">5.1. Configuring Prometheus</a></li>
-<li><a href="#list-of-alerts">5.2. List of alerts</a></li>
+<li><a href="#slow-operations">5.1. Slow operations</a></li>
+<li><a href="#hot-keys">5.2. Hot keys</a></li>
+<li><a href="#large-keys">5.3. Large keys</a></li>
 </ul>
 </li>
-<li><a href="#appendix-a-grafana-dashboards">6. Appendix A: Grafana Dashboards</a>
+<li><a href="#alerting">6. Alerting</a>
 <ul class="sectlevel2">
-<li><a href="#software">6.1. Software</a></li>
-<li><a href="#cloud">6.2. Cloud</a></li>
+<li><a href="#configuring-prometheus">6.1. Configuring Prometheus</a></li>
+<li><a href="#list-of-alerts">6.2. List of alerts</a></li>
+</ul>
+</li>
+<li><a href="#appendix-a-grafana-dashboards">7. Appendix A: Grafana Dashboards</a>
+<ul class="sectlevel2">
+<li><a href="#software">7.1. Software</a></li>
+<li><a href="#workflow">7.2. Workflow</a></li>
+<li><a href="#cloud">7.3. Cloud</a></li>
 </ul>
 </li>
 </ul>
@@ -92,6 +99,9 @@ core cluster resources and key database performance indicators.</p>
 <li>
 <p><a href="#network-ingress-egress">Network traffic</a></p>
 </li>
+<li>
+<p><a href="#synchronization">Synchronization</a></p>
+</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -107,6 +117,9 @@ core cluster resources and key database performance indicators.</p>
 </li>
 <li>
 <p><a href="#key-eviction-rate">Key eviction rate</a></p>
+</li>
+<li>
+<p><a href="#proxy-performance">Proxy Performance</a></p>
 </li>
 </ul>
 </div>
@@ -155,6 +168,7 @@ in a multi-database cluster.</p>
 <div class="content">
 <img src="images/playbook_used-memory.png" alt="playbook used memory">
 </div>
+<div class="title">Figure 3. Dashboard displaying high-level cluster metrics - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/cluster_dashboard.json">Cluster Dashboard</a></div>
 </div>
 <div class="sect3">
 <h4 id="thresholds"><a class="anchor" href="#thresholds"></a>2.1.1. Thresholds</h4>
@@ -178,6 +192,9 @@ in a multi-database cluster.</p>
 <p>For applications using Redis solely as a cache, you can safely let the memory usage
 reach 100% as long as you have an <a href="https://redis.io/blog/cache-eviction-strategies/">eviction policy</a> in place. This will ensure
 that Redis can evict keys while continuing to accept new writes.</p>
+</div>
+<div class="paragraph">
+<p><strong>NB</strong> Eviction will increase write command latency as Redis has to cleanup the memory/objects before accepting a new write to prevent OOM when memory usage is at 100%</p>
 </div>
 <div class="paragraph">
 <p>While your Redis database is using 100% of available memory in a caching context,
@@ -221,8 +238,9 @@ This may indicate a low cache hit ratio, ultimately caused by insufficient memor
 caching performance issues in production.</p>
 </div>
 </div>
-<div class="sect4">
-<h5 id="cache-hit-ratio-and-eviction"><a class="anchor" href="#cache-hit-ratio-and-eviction"></a>Cache hit ratio and eviction</h5>
+</div>
+<div class="sect3">
+<h4 id="cache-hit-ratio-and-eviction"><a class="anchor" href="#cache-hit-ratio-and-eviction"></a>2.1.3. Cache hit ratio and eviction</h4>
 <div class="paragraph">
 <p><strong>Cache hit ratio</strong> is the percentage of read requests that Redis serves successfully.
 <strong>Eviction rate</strong> is the rate at which Redis evicts keys from the cache. These metrics
@@ -260,9 +278,77 @@ and the measure of application-level latency. If application latency is high,
 check to see that key evictions have not increased.</p>
 </div>
 </div>
+<div class="sect3">
+<h4 id="eviction-policies"><a class="anchor" href="#eviction-policies"></a>2.1.4. Eviction Policies</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Name</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">noeviction</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">New values aren’t saved when memory limit is reached. When a database uses replication, this applies to the primary database</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">allkeys-lru</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Keeps most recently used keys; removes least recently used (LRU) keys</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">allkeys-lfu</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Keeps frequently used keys; removes least frequently used (LFU) keys</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">volatile-lru</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Removes least recently used keys with the expire field set to true.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">volatile-lfu</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Removes least frequently used keys with the expire field set to true.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">allkeys-random</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Randomly removes keys to make space for the new data added.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">volatile-random</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Randomly removes keys with expire field set to true.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">volatile-ttl</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Removes keys with expire field set to true and the shortest remaining time-to-live (TTL) value.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect3">
-<h4 id="non-caching-workloads"><a class="anchor" href="#non-caching-workloads"></a>2.1.3. Non-caching workloads</h4>
+<h4 id="eviction-policy-guidelines"><a class="anchor" href="#eviction-policy-guidelines"></a>2.1.5. Eviction policy guidelines</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Use the allkeys-lru policy when you expect a power-law distribution in the popularity of your requests. That is, you expect a subset of elements will be accessed far more often than the rest. This is a good pick if you are unsure.</p>
+</li>
+<li>
+<p>Use the allkeys-random if you have a cyclic access where all the keys are scanned continuously, or when you expect the distribution to be uniform.</p>
+</li>
+<li>
+<p>Use the volatile-ttl if you want to be able to provide hints to Redis about what are good candidate for expiration by using different TTL values when you create your cache objects.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The volatile-lru and volatile-random policies are mainly useful when you want to use a single instance for both caching and to have a set of persistent keys. However it is usually a better idea to run two Redis instances to solve such a problem.</p>
+</div>
+<div class="paragraph">
+<p><strong>NB</strong> Setting an expire value to a key costs memory, so using a policy like allkeys-lru is more memory efficient since there is no need for an expire configuration for the key to be evicted under memory pressure.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="non-caching-workloads"><a class="anchor" href="#non-caching-workloads"></a>2.1.6. Non-caching workloads</h4>
 <div class="paragraph">
 <p>If no eviction policy is enabled, then Redis will stop accepting writes once memory reaches 100%.
 Therefore, for non-caching workloads, we recommend that you configure an alert at 80% memory usage.
@@ -270,7 +356,7 @@ Once your database reaches this 80% threshold, you should closely review the rat
 </div>
 </div>
 <div class="sect3">
-<h4 id="troubleshooting"><a class="anchor" href="#troubleshooting"></a>2.1.4. Troubleshooting</h4>
+<h4 id="troubleshooting"><a class="anchor" href="#troubleshooting"></a>2.1.7. Troubleshooting</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -371,7 +457,7 @@ When diagnosing performance issues, start by looking at shard CPU.</p>
 <div class="content">
 <img src="images/playbook_database-cpu-shard.png" alt="playbook database cpu shard">
 </div>
-<div class="title">Figure 3. Dashboard displaying CPU usage</div>
+<div class="title">Figure 4. Dashboard displaying CPU usage - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/database_dashboard.json">Database Dashboard</a></div>
 </div>
 <div class="sect3">
 <h4 id="thresholds-2"><a class="anchor" href="#thresholds-2"></a>2.2.1. Thresholds</h4>
@@ -385,7 +471,7 @@ When diagnosing performance issues, start by looking at shard CPU.</p>
 <div class="content">
 <img src="images/playbook_proxy-cpu-usage.png" alt="playbook proxy cpu usage">
 </div>
-<div class="title">Figure 4. Display showing DMC Proxy CPU usage</div>
+<div class="title">Figure 5. Display showing Proxy CPU usage - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/proxy_dashboard.json">Proxy Dashboard</a></div>
 </div>
 <div class="paragraph">
 <p>Proxy CPU should remain below 80% of total capacity.
@@ -398,7 +484,7 @@ keeping utilization below 80% means keeping the total proxy CPU usage below 480%
 <div class="content">
 <img src="images/node_cpu.png" alt="node cpu">
 </div>
-<div class="title">Figure 5. Dashboard displaying an ensemble of Node CPU usage data</div>
+<div class="title">Figure 6. Dashboard displaying an ensemble of Node CPU usage data - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/node_dashboard.json">Node Dashboard</a></div>
 </div>
 <div class="paragraph">
 <p>Node CPU should also remain below 80% of total capacity. As with the proxy, the node CPU is variable depending
@@ -523,29 +609,73 @@ connection pool or a connection pool that is not properly configured.</p></td>
 </table>
 <div class="imageblock">
 <div class="content">
-<img src="images/playbook_bdb-used-connections.png" alt="playbook bdb used connections">
+<img src="images/playbook_database-used-connections.png" alt="playbook database used connections">
 </div>
-<div class="title">Figure 6. Dashboard displaying connections</div>
+<div class="title">Figure 7. Dashboard displaying connections - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/database_dashboard.json">Database Dashboard</a></div>
 </div>
 </div>
 <div class="sect3">
 <h4 id="network-ingress-egress"><a class="anchor" href="#network-ingress-egress"></a>2.3.2. Network ingress / egress</h4>
 <div class="paragraph">
 <p>The network ingress / egress panel show the amount of data being sent to and received from the database.
-Large spikes in network traffic can indicate that the cluster in underprovisioned or that
+Large spikes in network traffic can indicate that the cluster is under-provisioned or that
 the application is reading and/or writing unusually large keys. A correlation between high network traffic
 and high CPU utilization may indicate a large key scenario.</p>
+</div>
+<div class="sect4">
+<h5 id="unbalanced-database-endpoint"><a class="anchor" href="#unbalanced-database-endpoint"></a>Unbalanced database endpoint</h5>
+<div class="paragraph">
+<p>One possible cause is that the database endpoint is not located on the same node as master shards. In addition to added network latency, if data plane internode encryption is enabled, CPU consumption can increase as well.</p>
+</div>
+<div class="paragraph">
+<p>One solution is to used the optimal shard placement and proxy policy to ensure endpoints are collocated on nodes hosting master shards. If you need to restore balance (e.g. after node failure) you can manually failover shard(s) with the rladmin cli tool.</p>
 </div>
 <div class="paragraph">
 <p>Extreme network traffic utilization may approach the limits of the underlying network infrastructure.
 In this case, the only remediation is to add additional nodes to the cluster and scale the database&#8217;s shards across them.</p>
 </div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="synchronization"><a class="anchor" href="#synchronization"></a>2.4. Synchronization</h3>
+<div class="paragraph">
+<p>In Redis Enterprise, geographically-distributed synchronization is based on CRDT technology.
+The Redis Enterprise implementation of CRDT is called an Active-Active database (formerly known as CRDB).
+With Active-Active databases, applications can read and write to the same data set from different geographical locations seamlessly and with low latency, without changing the way the application connects to the database.</p>
+</div>
+<div class="paragraph">
+<p>An Active-Active architecture is a data resiliency architecture that distributes the database information over multiple data centers via independent and geographically distributed clusters and nodes.
+It is a network of separate processing nodes, each having access to a common replicated database such that all nodes can participate in a common application ensuring local low latency with each region being able to run in isolation.</p>
+</div>
+<div class="paragraph">
+<p>To achieve consistency between participating clusters, Redis Active-Active synchronization uses a process called the syncer.</p>
+</div>
+<div class="paragraph">
+<p>The syncer keeps a replication backlog, which stores changes to the dataset that the syncer sends to other participating clusters.
+The syncer uses partial syncs to keep replicas up to date with changes, or a full sync in the event a replica or primary is lost.</p>
+</div>
 <div class="imageblock">
 <div class="content">
 <img src="images/playbook_network-connectivity.png" alt="playbook network connectivity">
 </div>
-<div class="title">Figure 7. Dashboard displaying connection metrics between zones</div>
+<div class="title">Figure 8. Dashboard displaying connection metrics between zones - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/synchronization_dashboard.json">Synchronization</a></div>
 </div>
+<div class="paragraph">
+<p>CRDT provides three fundamental benefits over other geo-distributed solutions:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>It offers local latency on read and write operations, regardless of the number of geo-replicated regions and their distance from each other.</p>
+</li>
+<li>
+<p>It enables seamless conflict resolution (“conflict-free”) for simple and complex data types like those of Redis core.</p>
+</li>
+<li>
+<p>Even if most of the geo-replicated regions in a CRDT database (for example, 3 out of 5) are down, the remaining geo-replicated regions are uninterrupted and can continue to handle read and write operations, ensuring business continuity.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -572,16 +702,19 @@ In this case, the only remediation is to add additional nodes to the cluster and
 <div class="sect2">
 <h3 id="latency"><a class="anchor" href="#latency"></a>3.1. Latency</h3>
 <div class="paragraph">
-<p>Latency is <strong>the time it takes for Redis to respond to a request</strong>. An adequately provisioned Redis database running
-efficient Redis operations will report an average latency below 1 millisecond. In fact, it&#8217;s common to measure
+<p>Latency is <strong>the time it takes for Redis to respond to a request</strong>.
+Redis Enterprise measures latency from the first byte received by the proxy to the last byte sent in the command&#8217;s response.</p>
+</div>
+<div class="paragraph">
+<p>An adequately provisioned Redis database running efficient Redis operations will report an average latency below 1 millisecond. In fact, it&#8217;s common to measure
 latency in terms is microseconds. Customers regularly achieve, and sometime require, average latencies of 400-600
 microseconds.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/playbook_bdb-cluster-latency.png" alt="playbook bdb cluster latency">
+<img src="images/playbook_database-cluster-latency.png" alt="playbook database cluster latency">
 </div>
-<div class="title">Figure 8. Dashboard display of latency metrics</div>
+<div class="title">Figure 9. Dashboard display of latency metrics - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/database_dashboard.json">Database Dashboard</a></div>
 </div>
 <div class="paragraph">
 <p>The metrics distinguish between read and write latency. Understanding whether high latency is due
@@ -595,7 +728,7 @@ which is why it&#8217;s essential to measure request latency at the application,
 <div class="content">
 <img src="images/latency_spike.png" alt="latency spike">
 </div>
-<div class="title">Figure 9. Display showing a noticeable spike in latency</div>
+<div class="title">Figure 10. Display showing a noticeable spike in latency</div>
 </div>
 <div class="sect3">
 <h4 id="troubleshooting-4"><a class="anchor" href="#troubleshooting-4"></a>3.1.1. Troubleshooting</h4>
@@ -657,7 +790,7 @@ is already populated.</p>
 <div class="content">
 <img src="images/playbook_cache-hit.png" alt="playbook cache hit">
 </div>
-<div class="title">Figure 10. Dashboard showing the cache hit ratio along with read/write misses</div>
+<div class="title">Figure 11. Dashboard showing the cache hit ratio along with read/write misses - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/database_dashboard.json">Database Dashboard</a></div>
 </div>
 <div class="paragraph">
 <p>Note: Redis Enterprise actually reports four different cache hit / miss metrics.
@@ -719,13 +852,134 @@ if the rate of necessary key evictions exceeds the rate of new key insertions.</
 <div class="content">
 <img src="images/playbook_eviction-expiration.png" alt="playbook eviction expiration">
 </div>
-<div class="title">Figure 11. Dashboard displaying object evictions</div>
+<div class="title">Figure 12. Dashboard displaying object evictions - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/database_dashboard.json">Database Dashboard</a></div>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="data-access-anti-patterns"><a class="anchor" href="#data-access-anti-patterns"></a>4. Data access anti-patterns</h2>
+<h2 id="proxy-performance"><a class="anchor" href="#proxy-performance"></a>4. Proxy Performance</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Redis Enterprise Software (RS) provides high-performance data access through a proxy process that manages and optimizes access to shards within the RS cluster. Each node contains a single proxy process. Each proxy can be active and take incoming traffic or it can be passive and wait for failovers.</p>
+</div>
+<div class="sect3">
+<h4 id="proxy-policies"><a class="anchor" href="#proxy-policies"></a>4.1. Proxy Policies</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Policy</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Single</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">There is only a single proxy that is bound to the database. This is the default database configuration and preferable in most use cases.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">All Master Shards</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">There are multiple proxies that are bound to the database, one on each node that hosts a database master shard. This mode fits most use cases that require multiple proxies.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">All Nodes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">There are multiple proxies that are bound to the database, one on each node in the cluster, regardless of whether or not there is a shard from this database on the node. This mode should be used only in special cases, such as using a load balancer.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="imageblock">
+<div class="content">
+<img src="images/proxy-thread-dashboard.png" alt="proxy thread dashboard">
+</div>
+<div class="title">Figure 13. Dashboard displaying proxy thread activity - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/cloud/basic/redis-cloud-proxy-dashboard_v9-11.json">Proxy Thread Dashboard</a></div>
+</div>
+<div class="paragraph">
+<p>When needed, we can tune the number of proxy threads using the "rladmin tune proxy" command in order to be able to make the proxy use more CPU cores.
+Nevertheless, cores used by the proxy won&#8217;t be available for Redis, therefore we need to take into account the number of Redis nodes on the host and the total number of available cores.</p>
+</div>
+<div class="paragraph">
+<p>How to set a new number of proxy cores using the command:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>&lt;id|all&gt; - you can either tune a specific proxy by its id, or all proxies.</p>
+</li>
+<li>
+<p>&lt;mode&gt; - determines whether or not the proxy can automatically adjust the number of threads depending on load.</p>
+</li>
+<li>
+<p>&lt;threads&gt; and &lt;max_threads&gt; - determine the initial number of threads created on startup, and the maximum number of threads allowed.</p>
+</li>
+<li>
+<p>&lt;scale_threshold&gt; - determines the CPU utilization threshold that triggers spawning new threads. This CPU utilization level needs to be maintained for at least scale_duration seconds before automatic scaling is performed.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The following table indicates ideal proxy thread counts for the specified environments.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Total Cores</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Redis (ROR)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Redis on Flash (ROF)</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">24</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64/96</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">128</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="data-access-anti-patterns"><a class="anchor" href="#data-access-anti-patterns"></a>5. Data access anti-patterns</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>There are three data access patterns that can limit the performance of your Redis database:</p>
@@ -747,7 +1001,7 @@ if the rate of necessary key evictions exceeds the rate of new key insertions.</
 <p>This section defines each of these patterns and describes how to diagnose and mitigate them.</p>
 </div>
 <div class="sect2">
-<h3 id="slow-operations"><a class="anchor" href="#slow-operations"></a>4.1. Slow operations</h3>
+<h3 id="slow-operations"><a class="anchor" href="#slow-operations"></a>5.1. Slow operations</h3>
 <div class="paragraph">
 <p><strong>Slow operations</strong> are operations that take longer than a few milliseconds to complete.</p>
 </div>
@@ -776,7 +1030,7 @@ and block other operations. If you need to scan the keyspace, especially in a pr
 <a href="https://redis.io/docs/latest/commands/scan">SCAN</a> command instead.</p>
 </div>
 <div class="sect3">
-<h4 id="troubleshooting-6"><a class="anchor" href="#troubleshooting-6"></a>4.1.1. Troubleshooting</h4>
+<h4 id="troubleshooting-6"><a class="anchor" href="#troubleshooting-6"></a>5.1.1. Troubleshooting</h4>
 <div class="paragraph">
 <p>The best way to discover slow operations is to view the slow log.
 The slow low is available in the Redis Enterprise and Redis Cloud consoles:
@@ -787,7 +1041,7 @@ The slow low is available in the Redis Enterprise and Redis Cloud consoles:
 <div class="content">
 <img src="images/slow_log.png" alt="slow log">
 </div>
-<div class="title">Figure 12. Redis Cloud dashboard showing slow database operations</div>
+<div class="title">Figure 14. Redis Cloud dashboard showing slow database operations</div>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -822,7 +1076,7 @@ or more to complete</p></td>
 </div>
 </div>
 <div class="sect2">
-<h3 id="hot-keys"><a class="anchor" href="#hot-keys"></a>4.2. Hot keys</h3>
+<h3 id="hot-keys"><a class="anchor" href="#hot-keys"></a>5.2. Hot keys</h3>
 <div class="paragraph">
 <p>A <strong>hot key</strong> is a key that is accessed extremely frequently (e.g., thousands of time a second or more).</p>
 </div>
@@ -832,7 +1086,7 @@ For this reason, a hot key can cause high CPU utilization on that one shard,
 which can increase latency for all other operations.</p>
 </div>
 <div class="sect3">
-<h4 id="troubleshooting-7"><a class="anchor" href="#troubleshooting-7"></a>4.2.1. Troubleshooting</h4>
+<h4 id="troubleshooting-7"><a class="anchor" href="#troubleshooting-7"></a>5.2.1. Troubleshooting</h4>
 <div class="paragraph">
 <p>You may suspect that you have a hot key if you see high CPU utilization on a single shard.
 There are two main way to identify hot keys: using the Redis CLI and sampling the operations against Redis.</p>
@@ -862,7 +1116,7 @@ contact Redis support for assistance.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="remediation"><a class="anchor" href="#remediation"></a>4.2.2. Remediation</h4>
+<h4 id="remediation"><a class="anchor" href="#remediation"></a>5.2.2. Remediation</h4>
 <div class="paragraph">
 <p>Once you discover a hot key, you need to find a way to reduce the number of operations against it.
 This means getting an understanding of the application&#8217;s access pattern and the reasons for such frequently access.</p>
@@ -875,13 +1129,13 @@ can entirely eliminate a hot key issue.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="large-keys"><a class="anchor" href="#large-keys"></a>4.3. Large keys</h3>
+<h3 id="large-keys"><a class="anchor" href="#large-keys"></a>5.3. Large keys</h3>
 <div class="paragraph">
 <p><strong>Large keys</strong> are keys that are hundreds of kilobytes or larger.
 High network traffic and high CPU utilization can be caused by large keys.</p>
 </div>
 <div class="sect3">
-<h4 id="troubleshooting-8"><a class="anchor" href="#troubleshooting-8"></a>4.3.1. Troubleshooting</h4>
+<h4 id="troubleshooting-8"><a class="anchor" href="#troubleshooting-8"></a>5.3.1. Troubleshooting</h4>
 <div class="paragraph">
 <p>To identify large keys, you can sample the keyspace using the Redis CLI.</p>
 </div>
@@ -891,7 +1145,7 @@ and potentially identify the largest keys in your database.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="remediation-2"><a class="anchor" href="#remediation-2"></a>4.3.2. Remediation</h4>
+<h4 id="remediation-2"><a class="anchor" href="#remediation-2"></a>5.3.2. Remediation</h4>
 <div class="paragraph">
 <p>Addressing a large key issues requires understanding why the application is creating large keys in the first place.
 As such, it&#8217;s difficult to provide general advice to solving this issue. Resolution often requires a change
@@ -902,7 +1156,7 @@ to the application&#8217;s data model or the way it interacts with Redis.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="alerting"><a class="anchor" href="#alerting"></a>5. Alerting</h2>
+<h2 id="alerting"><a class="anchor" href="#alerting"></a>6. Alerting</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The Redis Enterprise observability package includes
@@ -918,7 +1172,7 @@ For a comprehensive guide to alerting with Prometheus and Grafana,
 see the <a href="https://grafana.com/blog/2020/02/25/step-by-step-guide-to-setting-up-prometheus-alertmanager-with-slack-pagerduty-and-gmail/">Grafana blog post on the subject</a>.</p>
 </div>
 <div class="sect2">
-<h3 id="configuring-prometheus"><a class="anchor" href="#configuring-prometheus"></a>5.1. Configuring Prometheus</h3>
+<h3 id="configuring-prometheus"><a class="anchor" href="#configuring-prometheus"></a>6.1. Configuring Prometheus</h3>
 <div class="paragraph">
 <p>To configure Prometheus for alerting, open the <code>prometheus.yml</code> configuration file.</p>
 </div>
@@ -976,7 +1230,7 @@ you will see this alert, as well as the alerts in any other file you have includ
 </div>
 </div>
 <div class="sect2">
-<h3 id="list-of-alerts"><a class="anchor" href="#list-of-alerts"></a>5.2. List of alerts</h3>
+<h3 id="list-of-alerts"><a class="anchor" href="#list-of-alerts"></a>6.2. List of alerts</h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1091,7 +1345,7 @@ you will see this alert, as well as the alerts in any other file you have includ
 </div>
 </div>
 <div class="sect1">
-<h2 id="appendix-a-grafana-dashboards"><a class="anchor" href="#appendix-a-grafana-dashboards"></a>6. Appendix A: Grafana Dashboards</h2>
+<h2 id="appendix-a-grafana-dashboards"><a class="anchor" href="#appendix-a-grafana-dashboards"></a>7. Appendix A: Grafana Dashboards</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Grafana dashboards are available for Redis Enterprise Software and Redis Cloud deployments.</p>
@@ -1117,22 +1371,23 @@ a holistic picture of your deployment.</p>
 <p>There are two additional sets of dashboards for Redis Enterprise software that provide drill-down functionality: the workflow dashboards.</p>
 </div>
 <div class="sect2">
-<h3 id="software"><a class="anchor" href="#software"></a>6.1. Software</h3>
+<h3 id="software"><a class="anchor" href="#software"></a>7.1. Software</h3>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/software/basic">Basic</a></p>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/v_9-11/software/basic">Basic</a></p>
 </li>
 <li>
-<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/software/extended">Extended</a></p>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/v_9-11/software/extended">Extended</a></p>
 </li>
 <li>
-<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/software/classic">Classic</a></p>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/v_9-11/software/classic">Classic</a></p>
 </li>
 </ul>
 </div>
-<div class="sect3">
-<h4 id="workflow"><a class="anchor" href="#workflow"></a>6.1.1. Workflow</h4>
+</div>
+<div class="sect2">
+<h3 id="workflow"><a class="anchor" href="#workflow"></a>7.2. Workflow</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1144,18 +1399,20 @@ a holistic picture of your deployment.</p>
 </ul>
 </div>
 </div>
-</div>
 <div class="sect2">
-<h3 id="cloud"><a class="anchor" href="#cloud"></a>6.2. Cloud</h3>
+<h3 id="cloud"><a class="anchor" href="#cloud"></a>7.3. Cloud</h3>
 <div class="ulist">
 <ul>
 <li>
 <p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/cloud/basic">Basic</a></p>
 </li>
 <li>
-<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/cloud/extended">Exteneded</a></p>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/cloud/extended">Extended</a></p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p><strong>NB</strong> - The 'workflow' dashboards are intended to be used as a package. Therefore they should all be installed, as they contain links to the other dashboards in the group permitting rapid navigation between the overview and the drill-down views.</p>
 </div>
 </div>
 </div>
@@ -1176,7 +1433,7 @@ a holistic picture of your deployment.</p>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2024-06-04 00:08:33 -0600
+Last updated 2024-07-26 22:15:07 -0700
 </div>
 </div>
 </body>
