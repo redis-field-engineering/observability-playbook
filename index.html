@@ -168,7 +168,7 @@ in a multi-database cluster.</p>
 <div class="content">
 <img src="images/playbook_used-memory.png" alt="playbook used memory">
 </div>
-<div class="title">Figure 3. Dashboard displaying high-level cluster metrics - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/cluster_dashboard.json">Cluster Dashboard</a></div>
+<div class="title">Figure 3. Dashboard displaying high-level cluster metrics - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/cluster_dashboard_v9-11.json">Cluster Dashboard</a></div>
 </div>
 <div class="sect3">
 <h4 id="thresholds"><a class="anchor" href="#thresholds"></a>2.1.1. Thresholds</h4>
@@ -457,7 +457,7 @@ When diagnosing performance issues, start by looking at shard CPU.</p>
 <div class="content">
 <img src="images/playbook_database-cpu-shard.png" alt="playbook database cpu shard">
 </div>
-<div class="title">Figure 4. Dashboard displaying CPU usage - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/database_dashboard.json">Database Dashboard</a></div>
+<div class="title">Figure 4. Dashboard displaying CPU usage - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/database_dashboard_v9-11.json">Database Dashboard</a></div>
 </div>
 <div class="sect3">
 <h4 id="thresholds-2"><a class="anchor" href="#thresholds-2"></a>2.2.1. Thresholds</h4>
@@ -471,7 +471,7 @@ When diagnosing performance issues, start by looking at shard CPU.</p>
 <div class="content">
 <img src="images/playbook_proxy-cpu-usage.png" alt="playbook proxy cpu usage">
 </div>
-<div class="title">Figure 5. Display showing Proxy CPU usage - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/proxy_dashboard.json">Proxy Dashboard</a></div>
+<div class="title">Figure 5. Display showing Proxy CPU usage - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/proxy_dashboard_v9-11.json">Proxy Dashboard</a></div>
 </div>
 <div class="paragraph">
 <p>Proxy CPU should remain below 80% of total capacity.
@@ -484,7 +484,7 @@ keeping utilization below 80% means keeping the total proxy CPU usage below 480%
 <div class="content">
 <img src="images/node_cpu.png" alt="node cpu">
 </div>
-<div class="title">Figure 6. Dashboard displaying an ensemble of Node CPU usage data - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/node_dashboard.json">Node Dashboard</a></div>
+<div class="title">Figure 6. Dashboard displaying an ensemble of Node CPU usage data - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/node_dashboard_v9-11.json">Node Dashboard</a></div>
 </div>
 <div class="paragraph">
 <p>Node CPU should also remain below 80% of total capacity. As with the proxy, the node CPU is variable depending
@@ -611,7 +611,7 @@ connection pool or a connection pool that is not properly configured.</p></td>
 <div class="content">
 <img src="images/playbook_database-used-connections.png" alt="playbook database used connections">
 </div>
-<div class="title">Figure 7. Dashboard displaying connections - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/database_dashboard.json">Database Dashboard</a></div>
+<div class="title">Figure 7. Dashboard displaying connections - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/database_dashboard_v9-11.json">Database Dashboard</a></div>
 </div>
 </div>
 <div class="sect3">
@@ -659,7 +659,7 @@ The syncer uses partial syncs to keep replicas up to date with changes, or a ful
 <div class="content">
 <img src="images/playbook_network-connectivity.png" alt="playbook network connectivity">
 </div>
-<div class="title">Figure 8. Dashboard displaying connection metrics between zones - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/synchronization_dashboard.json">Synchronization</a></div>
+<div class="title">Figure 8. Dashboard displaying connection metrics between zones - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/synchronization_dashboard_v9-11.json">Synchronization Dashboard</a></div>
 </div>
 <div class="paragraph">
 <p>CRDT provides three fundamental benefits over other geo-distributed solutions:</p>
@@ -714,7 +714,7 @@ microseconds.</p>
 <div class="content">
 <img src="images/playbook_database-cluster-latency.png" alt="playbook database cluster latency">
 </div>
-<div class="title">Figure 9. Dashboard display of latency metrics - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/database_dashboard.json">Database Dashboard</a></div>
+<div class="title">Figure 9. Dashboard display of latency metrics - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/database_dashboard_v9-11.json">Database Dashboard</a></div>
 </div>
 <div class="paragraph">
 <p>The metrics distinguish between read and write latency. Understanding whether high latency is due
@@ -790,7 +790,7 @@ is already populated.</p>
 <div class="content">
 <img src="images/playbook_cache-hit.png" alt="playbook cache hit">
 </div>
-<div class="title">Figure 11. Dashboard showing the cache hit ratio along with read/write misses - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/database_dashboard.json">Database Dashboard</a></div>
+<div class="title">Figure 11. Dashboard showing the cache hit ratio along with read/write misses - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/database_dashboard_v9-11.json">Database Dashboard</a></div>
 </div>
 <div class="paragraph">
 <p>Note: Redis Enterprise actually reports four different cache hit / miss metrics.
@@ -852,7 +852,7 @@ if the rate of necessary key evictions exceeds the rate of new key insertions.</
 <div class="content">
 <img src="images/playbook_eviction-expiration.png" alt="playbook eviction expiration">
 </div>
-<div class="title">Figure 12. Dashboard displaying object evictions - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/database_dashboard.json">Database Dashboard</a></div>
+<div class="title">Figure 12. Dashboard displaying object evictions - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/database_dashboard_v9-11.json">Database Dashboard</a></div>
 </div>
 </div>
 </div>
@@ -893,7 +893,7 @@ if the rate of necessary key evictions exceeds the rate of new key insertions.</
 <div class="content">
 <img src="images/proxy-thread-dashboard.png" alt="proxy thread dashboard">
 </div>
-<div class="title">Figure 13. Dashboard displaying proxy thread activity - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/cloud/basic/redis-cloud-proxy-dashboard_v9-11.json">Proxy Thread Dashboard</a></div>
+<div class="title">Figure 13. Dashboard displaying proxy thread activity - <a href="https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/cloud/basic/redis-cloud-proxy-dashboard_v9-11.json">Proxy Thread Dashboard</a></div>
 </div>
 <div class="paragraph">
 <p>When needed, we can tune the number of proxy threads using the "rladmin tune proxy" command in order to be able to make the proxy use more CPU cores.
@@ -1375,13 +1375,13 @@ a holistic picture of your deployment.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/v_9-11/software/basic">Basic</a></p>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana/dashboards/grafana_v9-11/software/basic">Basic</a></p>
 </li>
 <li>
-<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/v_9-11/software/extended">Extended</a></p>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana/dashboards/grafana_v9-11/software/extended">Extended</a></p>
 </li>
 <li>
-<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/v_9-11/software/classic">Classic</a></p>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana/dashboards/grafana_v9-11/software/classic">Classic</a></p>
 </li>
 </ul>
 </div>
@@ -1391,10 +1391,10 @@ a holistic picture of your deployment.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/workflow/databases">Database</a></p>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana/dashboards/grafana_v9-11/workflow/databases">Database</a></p>
 </li>
 <li>
-<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/workflow/nodes">Node</a></p>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana/dashboards/grafana_v9-11/workflow/nodes">Node</a></p>
 </li>
 </ul>
 </div>
@@ -1404,10 +1404,10 @@ a holistic picture of your deployment.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/cloud/basic">Basic</a></p>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana/dashboards/grafana_v9-11/cloud/basic">Basic</a></p>
 </li>
 <li>
-<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/cloud/extended">Extended</a></p>
+<p><a href="https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana/dashboards/grafana_v9-11/cloud/extended">Extended</a></p>
 </li>
 </ul>
 </div>
@@ -1433,7 +1433,7 @@ a holistic picture of your deployment.</p>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2024-07-26 22:15:07 -0700
+Last updated 2024-08-29 10:03:26 -0600
 </div>
 </div>
 </body>

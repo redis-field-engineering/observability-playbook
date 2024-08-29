@@ -4,8 +4,8 @@
 << /Title (Redis Enterprise Developer Observability Playbook)
 /Creator (Asciidoctor PDF 2.3.10, based on Prawn 2.4.0)
 /Producer (Asciidoctor PDF 2.3.10, based on Prawn 2.4.0)
-/ModDate (D:20240726221507-07'00')
-/CreationDate (D:20240805112526-07'00')
+/ModDate (D:20240829100326-06'00')
+/CreationDate (D:20240829100349-06'00')
 >>
 endobj
 2 0 obj
@@ -3287,7 +3287,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/cluster_dashboard.json)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/cluster_dashboard_v9-11.json)
 >>
 /Subtype /Link
 /Rect [320.09846 297.99222 406.94081 311.55822]
@@ -7502,7 +7502,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/database_dashboard.json)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/database_dashboard_v9-11.json)
 >>
 /Subtype /Link
 /Rect [252.76721 125.06213 349.86386 138.62813]
@@ -7925,7 +7925,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/proxy_dashboard.json)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/proxy_dashboard_v9-11.json)
 >>
 /Subtype /Link
 /Rect [257.40558 596.02726 338.39261 609.59326]
@@ -8339,7 +8339,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/node_dashboard.json)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/node_dashboard_v9-11.json)
 >>
 /Subtype /Link
 /Rect [374.26271 253.74256 452.01783 267.30856]
@@ -11243,7 +11243,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/database_dashboard.json)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/database_dashboard_v9-11.json)
 >>
 /Subtype /Link
 /Rect [258.96168 428.14506 356.05833 441.71106]
@@ -11257,7 +11257,7 @@ endobj
 [92 0 R /XYZ 0 307.03256 null]
 endobj
 98 0 obj
-<< /Length 8343
+<< /Length 8363
 >>
 stream
 q
@@ -11510,7 +11510,7 @@ ET
 BT
 361.26528 288.68456 Td
 /F3.0 9.975 Tf
-[<53> 20.01953 <796e6368726f6e697a6174696f6e>] TJ
+[<53> 20.01953 <796e6368726f6e697a6174696f6e2044617368626f617264>] TJ
 ET
 
 0.0 0.0 0.0 SCN
@@ -12357,10 +12357,10 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/synchronization_dashboard.json)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/synchronization_dashboard_v9-11.json)
 >>
 /Subtype /Link
-/Rect [361.26528 285.77186 437.20476 299.33786]
+/Rect [361.26528 285.77186 490.93011 299.33786]
 /Type /Annot
 >>
 endobj
@@ -13010,7 +13010,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/database_dashboard.json)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/database_dashboard_v9-11.json)
 >>
 /Subtype /Link
 /Rect [271.30076 298.91403 368.39741 312.48003]
@@ -15501,7 +15501,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/database_dashboard.json)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/database_dashboard_v9-11.json)
 >>
 /Subtype /Link
 /Rect [421.07538 621.8534 518.17203 635.4194]
@@ -15827,7 +15827,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/v_9-11/software/classic/database_dashboard.json)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/software/classic/database_dashboard_v9-11.json)
 >>
 /Subtype /Link
 /Rect [280.66728 660.94048 377.76393 674.50648]
@@ -16887,7 +16887,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/cloud/basic/redis-cloud-proxy-dashboard_v9-11.json)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/blob/main/grafana/dashboards/grafana_v9-11/cloud/basic/redis-cloud-proxy-dashboard_v9-11.json)
 >>
 /Subtype /Link
 /Rect [306.65216 142.32241 423.42948 155.88841]
@@ -24739,7 +24739,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/v_9-11/software/basic)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana/dashboards/grafana_v9-11/software/basic)
 >>
 /Subtype /Link
 /Rect [66.24 508.04 92.2485 522.32]
@@ -24750,7 +24750,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/v_9-11/software/extended)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana/dashboards/grafana_v9-11/software/extended)
 >>
 /Subtype /Link
 /Rect [66.24 486.26 113.427 500.54]
@@ -24761,7 +24761,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/v_9-11/software/classic)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana/dashboards/grafana_v9-11/software/classic)
 >>
 /Subtype /Link
 /Rect [66.24 464.48 99.819 478.76]
@@ -24775,7 +24775,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/workflow/databases)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana/dashboards/grafana_v9-11/workflow/databases)
 >>
 /Subtype /Link
 /Rect [66.24 396.62 112.062 410.9]
@@ -24786,7 +24786,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/workflow/nodes)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana/dashboards/grafana_v9-11/workflow/nodes)
 >>
 /Subtype /Link
 /Rect [66.24 374.84 92.364 389.12]
@@ -24800,7 +24800,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/cloud/basic)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana/dashboards/grafana_v9-11/cloud/basic)
 >>
 /Subtype /Link
 /Rect [66.24 306.98 92.2485 321.26]
@@ -24811,7 +24811,7 @@ endobj
 << /Border [0 0 0]
 /A << /Type /Action
 /S /URI
-/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/tree/playbook/grafana/dashboards/cloud/extended)
+/URI (https://github.com/redis-field-engineering/redis-enterprise-observability/tree/main/grafana/dashboards/grafana_v9-11/cloud/extended)
 >>
 /Subtype /Link
 /Rect [66.24 285.2 113.427 299.48]
@@ -25463,246 +25463,246 @@ xref
 0000380441 00000 n 
 0000416515 00000 n 
 0000418339 00000 n 
-0000418641 00000 n 
-0000418688 00000 n 
-0000418823 00000 n 
-0000418964 00000 n 
-0000419011 00000 n 
-0000419211 00000 n 
-0000431629 00000 n 
-0000431995 00000 n 
-0000432039 00000 n 
-0000432159 00000 n 
-0000432203 00000 n 
-0000432446 00000 n 
-0000448762 00000 n 
-0000449104 00000 n 
-0000449148 00000 n 
-0000449192 00000 n 
-0000458883 00000 n 
-0000459249 00000 n 
-0000459293 00000 n 
-0000459337 00000 n 
-0000459565 00000 n 
-0000459792 00000 n 
-0000474047 00000 n 
-0000474430 00000 n 
-0000474474 00000 n 
-0000548216 00000 n 
-0000549712 00000 n 
-0000550015 00000 n 
-0000550062 00000 n 
-0000554918 00000 n 
-0000555319 00000 n 
-0000579300 00000 n 
-0000580475 00000 n 
-0000580775 00000 n 
-0000682355 00000 n 
-0000685951 00000 n 
-0000686250 00000 n 
-0000686297 00000 n 
-0000699093 00000 n 
-0000699480 00000 n 
-0000699609 00000 n 
-0000699739 00000 n 
-0000699863 00000 n 
-0000700094 00000 n 
-0000700325 00000 n 
-0000714960 00000 n 
-0000715302 00000 n 
-0000715346 00000 n 
-0000715390 00000 n 
-0000726379 00000 n 
-0000726762 00000 n 
-0000746822 00000 n 
-0000747951 00000 n 
-0000748254 00000 n 
-0000748301 00000 n 
-0000748348 00000 n 
-0000756744 00000 n 
-0000757129 00000 n 
-0000757174 00000 n 
-0000911739 00000 n 
-0000914931 00000 n 
-0000915242 00000 n 
-0000920976 00000 n 
-0000921363 00000 n 
-0000921409 00000 n 
-0000921902 00000 n 
-0000922270 00000 n 
-0000922316 00000 n 
-0000966654 00000 n 
-0000967980 00000 n 
-0000968284 00000 n 
-0001047856 00000 n 
-0001049810 00000 n 
-0001064967 00000 n 
-0001065427 00000 n 
-0001065476 00000 n 
-0001065613 00000 n 
-0001065755 00000 n 
-0001065902 00000 n 
-0001066039 00000 n 
-0001066183 00000 n 
-0001066308 00000 n 
-0001066434 00000 n 
-0001066571 00000 n 
-0001066620 00000 n 
-0001066677 00000 n 
-0001066815 00000 n 
-0001066954 00000 n 
-0001078155 00000 n 
-0001078575 00000 n 
-0001113514 00000 n 
-0001114539 00000 n 
-0001114841 00000 n 
-0001114889 00000 n 
-0001115040 00000 n 
-0001115088 00000 n 
-0001115320 00000 n 
-0001115551 00000 n 
-0001115699 00000 n 
-0001139348 00000 n 
-0001140394 00000 n 
-0001142116 00000 n 
-0001142499 00000 n 
-0001142803 00000 n 
-0001142855 00000 n 
-0001142985 00000 n 
-0001151675 00000 n 
-0001152063 00000 n 
-0001152109 00000 n 
-0001152155 00000 n 
-0001258229 00000 n 
-0001261365 00000 n 
-0001261672 00000 n 
-0001278269 00000 n 
-0001278613 00000 n 
-0001289268 00000 n 
-0001289752 00000 n 
-0001289798 00000 n 
-0001289844 00000 n 
-0001290029 00000 n 
-0001290211 00000 n 
-0001290399 00000 n 
-0001290589 00000 n 
-0001290643 00000 n 
-0001290781 00000 n 
-0001290972 00000 n 
-0001291167 00000 n 
-0001291354 00000 n 
-0001291545 00000 n 
-0001291727 00000 n 
-0001291773 00000 n 
-0001291993 00000 n 
-0001292230 00000 n 
-0001292464 00000 n 
-0001342232 00000 n 
-0001344189 00000 n 
-0001357778 00000 n 
-0001358170 00000 n 
-0001358398 00000 n 
-0001358626 00000 n 
-0001358672 00000 n 
-0001358718 00000 n 
-0001358894 00000 n 
-0001359088 00000 n 
-0001359134 00000 n 
-0001363383 00000 n 
-0001363759 00000 n 
-0001363805 00000 n 
-0001363851 00000 n 
-0001363897 00000 n 
-0001364283 00000 n 
-0001364335 00000 n 
-0001364465 00000 n 
-0001374862 00000 n 
-0001375278 00000 n 
-0001375324 00000 n 
-0001375749 00000 n 
-0001375992 00000 n 
-0001376233 00000 n 
-0001376286 00000 n 
-0001376424 00000 n 
-0001376669 00000 n 
-0001376873 00000 n 
-0001377145 00000 n 
-0001377191 00000 n 
-0001405620 00000 n 
-0001406735 00000 n 
-0001423828 00000 n 
-0001424199 00000 n 
-0001424248 00000 n 
-0001442457 00000 n 
-0001442833 00000 n 
-0001443002 00000 n 
-0001443054 00000 n 
-0001443184 00000 n 
-0001450134 00000 n 
-0001450544 00000 n 
-0001450590 00000 n 
-0001450636 00000 n 
-0001450906 00000 n 
-0001451179 00000 n 
-0001451450 00000 n 
-0001451496 00000 n 
-0001451762 00000 n 
-0001452024 00000 n 
-0001452070 00000 n 
-0001452330 00000 n 
-0001452592 00000 n 
-0001452717 00000 n 
-0001452844 00000 n 
-0001452990 00000 n 
-0001453137 00000 n 
-0001453282 00000 n 
-0001453427 00000 n 
-0001453557 00000 n 
-0001453688 00000 n 
-0001453827 00000 n 
-0001453966 00000 n 
-0001454087 00000 n 
-0001454209 00000 n 
-0001454353 00000 n 
-0001454496 00000 n 
-0001454573 00000 n 
-0001454878 00000 n 
-0001455070 00000 n 
-0001455242 00000 n 
-0001455494 00000 n 
-0001455743 00000 n 
-0001455936 00000 n 
-0001456161 00000 n 
-0001456318 00000 n 
-0001456549 00000 n 
-0001457019 00000 n 
-0001457064 00000 n 
-0001457338 00000 n 
-0001457612 00000 n 
-0001468915 00000 n 
-0001469129 00000 n 
-0001470484 00000 n 
-0001471400 00000 n 
-0001480368 00000 n 
-0001480587 00000 n 
-0001481942 00000 n 
-0001482858 00000 n 
-0001490485 00000 n 
-0001490709 00000 n 
-0001492064 00000 n 
-0001492979 00000 n 
-0001496702 00000 n 
-0001496915 00000 n 
-0001498270 00000 n 
-0001499185 00000 n 
-0001502940 00000 n 
-0001503154 00000 n 
-0001503455 00000 n 
+0000418654 00000 n 
+0000418701 00000 n 
+0000418836 00000 n 
+0000418977 00000 n 
+0000419024 00000 n 
+0000419224 00000 n 
+0000431642 00000 n 
+0000432008 00000 n 
+0000432052 00000 n 
+0000432172 00000 n 
+0000432216 00000 n 
+0000432459 00000 n 
+0000448775 00000 n 
+0000449117 00000 n 
+0000449161 00000 n 
+0000449205 00000 n 
+0000458896 00000 n 
+0000459262 00000 n 
+0000459306 00000 n 
+0000459350 00000 n 
+0000459578 00000 n 
+0000459805 00000 n 
+0000474060 00000 n 
+0000474443 00000 n 
+0000474487 00000 n 
+0000548229 00000 n 
+0000549725 00000 n 
+0000550041 00000 n 
+0000550088 00000 n 
+0000554944 00000 n 
+0000555345 00000 n 
+0000579326 00000 n 
+0000580501 00000 n 
+0000580814 00000 n 
+0000682394 00000 n 
+0000685990 00000 n 
+0000686302 00000 n 
+0000686349 00000 n 
+0000699145 00000 n 
+0000699532 00000 n 
+0000699661 00000 n 
+0000699791 00000 n 
+0000699915 00000 n 
+0000700146 00000 n 
+0000700377 00000 n 
+0000715012 00000 n 
+0000715354 00000 n 
+0000715398 00000 n 
+0000715442 00000 n 
+0000726431 00000 n 
+0000726814 00000 n 
+0000746874 00000 n 
+0000748003 00000 n 
+0000748319 00000 n 
+0000748366 00000 n 
+0000748413 00000 n 
+0000756829 00000 n 
+0000757214 00000 n 
+0000757259 00000 n 
+0000911824 00000 n 
+0000915016 00000 n 
+0000915340 00000 n 
+0000921074 00000 n 
+0000921461 00000 n 
+0000921507 00000 n 
+0000922000 00000 n 
+0000922368 00000 n 
+0000922414 00000 n 
+0000966752 00000 n 
+0000968078 00000 n 
+0000968395 00000 n 
+0001047967 00000 n 
+0001049921 00000 n 
+0001065078 00000 n 
+0001065538 00000 n 
+0001065587 00000 n 
+0001065724 00000 n 
+0001065866 00000 n 
+0001066013 00000 n 
+0001066150 00000 n 
+0001066294 00000 n 
+0001066419 00000 n 
+0001066545 00000 n 
+0001066682 00000 n 
+0001066731 00000 n 
+0001066788 00000 n 
+0001066926 00000 n 
+0001067065 00000 n 
+0001078266 00000 n 
+0001078686 00000 n 
+0001113625 00000 n 
+0001114650 00000 n 
+0001114965 00000 n 
+0001115013 00000 n 
+0001115164 00000 n 
+0001115212 00000 n 
+0001115444 00000 n 
+0001115675 00000 n 
+0001115823 00000 n 
+0001139472 00000 n 
+0001140518 00000 n 
+0001142240 00000 n 
+0001142623 00000 n 
+0001142940 00000 n 
+0001142992 00000 n 
+0001143122 00000 n 
+0001151812 00000 n 
+0001152200 00000 n 
+0001152246 00000 n 
+0001152292 00000 n 
+0001258366 00000 n 
+0001261502 00000 n 
+0001261823 00000 n 
+0001278420 00000 n 
+0001278764 00000 n 
+0001289419 00000 n 
+0001289903 00000 n 
+0001289949 00000 n 
+0001289995 00000 n 
+0001290180 00000 n 
+0001290362 00000 n 
+0001290550 00000 n 
+0001290740 00000 n 
+0001290794 00000 n 
+0001290932 00000 n 
+0001291123 00000 n 
+0001291318 00000 n 
+0001291505 00000 n 
+0001291696 00000 n 
+0001291878 00000 n 
+0001291924 00000 n 
+0001292144 00000 n 
+0001292381 00000 n 
+0001292615 00000 n 
+0001342383 00000 n 
+0001344340 00000 n 
+0001357929 00000 n 
+0001358321 00000 n 
+0001358549 00000 n 
+0001358777 00000 n 
+0001358823 00000 n 
+0001358869 00000 n 
+0001359045 00000 n 
+0001359239 00000 n 
+0001359285 00000 n 
+0001363534 00000 n 
+0001363910 00000 n 
+0001363956 00000 n 
+0001364002 00000 n 
+0001364048 00000 n 
+0001364434 00000 n 
+0001364486 00000 n 
+0001364616 00000 n 
+0001375013 00000 n 
+0001375429 00000 n 
+0001375475 00000 n 
+0001375900 00000 n 
+0001376143 00000 n 
+0001376384 00000 n 
+0001376437 00000 n 
+0001376575 00000 n 
+0001376820 00000 n 
+0001377024 00000 n 
+0001377296 00000 n 
+0001377342 00000 n 
+0001405771 00000 n 
+0001406886 00000 n 
+0001423979 00000 n 
+0001424350 00000 n 
+0001424399 00000 n 
+0001442608 00000 n 
+0001442984 00000 n 
+0001443153 00000 n 
+0001443205 00000 n 
+0001443335 00000 n 
+0001450285 00000 n 
+0001450695 00000 n 
+0001450741 00000 n 
+0001450787 00000 n 
+0001451060 00000 n 
+0001451336 00000 n 
+0001451610 00000 n 
+0001451656 00000 n 
+0001451932 00000 n 
+0001452204 00000 n 
+0001452250 00000 n 
+0001452520 00000 n 
+0001452792 00000 n 
+0001452917 00000 n 
+0001453044 00000 n 
+0001453190 00000 n 
+0001453337 00000 n 
+0001453482 00000 n 
+0001453627 00000 n 
+0001453757 00000 n 
+0001453888 00000 n 
+0001454027 00000 n 
+0001454166 00000 n 
+0001454287 00000 n 
+0001454409 00000 n 
+0001454553 00000 n 
+0001454696 00000 n 
+0001454773 00000 n 
+0001455078 00000 n 
+0001455270 00000 n 
+0001455442 00000 n 
+0001455694 00000 n 
+0001455943 00000 n 
+0001456136 00000 n 
+0001456361 00000 n 
+0001456518 00000 n 
+0001456749 00000 n 
+0001457219 00000 n 
+0001457264 00000 n 
+0001457538 00000 n 
+0001457812 00000 n 
+0001469115 00000 n 
+0001469329 00000 n 
+0001470684 00000 n 
+0001471600 00000 n 
+0001480568 00000 n 
+0001480787 00000 n 
+0001482142 00000 n 
+0001483058 00000 n 
+0001490685 00000 n 
+0001490909 00000 n 
+0001492264 00000 n 
+0001493179 00000 n 
+0001496902 00000 n 
+0001497115 00000 n 
+0001498470 00000 n 
+0001499385 00000 n 
+0001503140 00000 n 
+0001503354 00000 n 
+0001503655 00000 n 
 trailer
 << /Size 278
 /Root 2 0 R
 /Info 1 0 R
 >>
 startxref
-1504371
+1504571
 %%EOF
